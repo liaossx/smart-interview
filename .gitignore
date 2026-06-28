@@ -18,6 +18,10 @@ __pycache__/
 dist/
 build/
 
+# Test databases
+*.db
+ai-service/test.db
+
 # AI service runtime data
 ai-service/data/sessions/
 
