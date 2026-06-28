@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartInterview - 智能面试模拟</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="app">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <span>◆</span> SmartInterview
+            </div>
+
+            <div class="sidebar-label">功能</div>
+            <div class="history-item active" data-page="dashboard" onclick="showPage('dashboard')">📊 首页</div>
+            <div class="history-item" data-page="jd-input" onclick="showPage('jd-input')">📝 新建面试</div>
+            <div class="history-item" data-page="history" onclick="showPage('history')">📋 历史记录</div>
+
+            <div id="adminMenuSection" style="display:none;">
+                <div class="sidebar-label" style="margin-top:16px;">🔧 管理后台</div>
+                <div class="history-item" data-page="admin-dashboard" onclick="showPage('admin-dashboard')">📊 管理首页</div>
+                <div class="history-item" data-page="admin-users" onclick="showPage('admin-users')">👥 用户管理</div>
+                <div class="history-item" data-page="admin-sessions" onclick="showPage('admin-sessions')">📋 面试管理</div>
+                <div class="history-item" data-page="admin-configs" onclick="showPage('admin-configs')">⚙️ 系统配置</div>
+                <div class="history-item" data-page="admin-stats" onclick="showPage('admin-stats')">📈 数据统计</div>
+                <div class="history-item" data-page="admin-audit-logs" onclick="showPage('admin-audit-logs')">📝 审计日志</div>
+            </div>
+
+            <div class="sidebar-label" style="margin-top:16px;">历史会话</div>
+            <div class="history-scroll" id="historyList">
+                <div class="history-item" style="color:#ccc;">暂无记录</div>
+            </div>
+
+            <div class="user-info" id="userInfo">
+                <div>未登录</div>
+                <button class="btn-secondary" style="margin-top:8px;width:100%;" onclick="showLogin()">登录</button>
+            </div>
+        </div>
+
+        <!-- Main -->
+        <div class="main">
+            <!-- Dashboard Page -->
+            <div class="page active" id="page-dashboard">
+                <div class="header">
+                    <h1>📊 面试模拟首页</h1>
+                    <div class="status"><span class="dot"></span> 准备就绪</div>
+                </div>
+                <div class="content">
+                    <h2 style="font-size:18px;margin-bottom:8px;">欢迎使用 SmartInterview</h2>
+                    <p style="color:#666;font-size:14px;margin-bottom:24px;">
+                        粘贴 JD + 上传简历 → AI 智能模拟面试 → 生成评估报告
+                    </p>
+                    <button class="btn-primary" onclick="showPage('jd-input')">
+                        + 开始新的面试模拟
+                    </button>
+
+                    <div class="dashboard-grid">
+                        <div class="card">
+                            <h3>📈 最近表现</h3>
+                            <div id="recentScore" style="font-size:32px;font-weight:700;color:#1a73e8;">--</div>
+                            <div style="font-size:13px;color:#999;margin-top:4px;">最近一次面试得分</div>
+                        </div>
+                        <div class="card">
+                            <h3>🎯 模拟次数</h3>
+                            <div id="totalCount" style="font-size:32px;font-weight:700;color:#333;">--</div>
+                            <div style="font-size:13px;color:#999;margin-top:4px;">累计面试次数</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- JD Input Page -->
+            <div class="page" id="page-jd-input">
+                <div class="header">
+                    <h1>📝 新建面试模拟</h1>
+                    <div class="status"><span class="dot"></span> 准备就绪</div>
+                </div>
+                <div class="content">
+                    <div class="jd-input-area">
+                        <div class="form-group">
+                            <label>📄 上传简历 (PDF / Word)</label>
+                            <div class="file-upload" onclick="document.getElementById('resumeFile').click()">
+                                <div class="icon">📎</div>
+                                <div id="fileName">点击选择文件</div>
+                                <div class="hint">支持 PDF、DOCX 格式</div>
+                            </div>
+                            <input type="file" id="resumeFile" accept=".pdf,.docx"
+                                   style="display:none" onchange="onFileSelect(event)">
+                        </div>
+
+                        <div class="form-group">
+                            <label>📝 粘贴岗位描述 (JD)</label>
+                            <textarea id="jdContent" placeholder="从 BOSS直聘或其他平台复制 JD 内容粘贴到这里..."></textarea>
+                        </div>
+
+                        <button class="btn-primary" onclick="startInterview()">
+                            🚀 开始分析并面试
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- History Page -->
+            <div class="page" id="page-history">
+                <div class="header">
+                    <h1>📋 面试历史</h1>
+                    <div class="status"><span class="dot"></span> 已加载</div>
+                </div>
+                <div class="content">
+                    <div id="historyTable">
+                        <p style="color:#999;">暂无面试记录</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interview Page -->
+            <div class="page" id="page-interview">
+                <div class="header">
+                    <h1>🎙 面试进行中</h1>
+                    <div class="status" id="interviewStatus"><span class="dot"></span> 面试中</div>
+                </div>
+                <div class="content messages" id="interviewMessages"></div>
+                <div class="progress-bar" id="progressBar">
+                    <span id="progressText">0/0</span>
+                    <div class="track"><div class="fill" id="progressFill" style="width:0%"></div></div>
+                    <span id="currentScore">--分</span>
+                </div>
+                <div class="input-area">
+                    <input type="text" id="answerInput" placeholder="输入你的回答..."
+                           onkeydown="if(event.key==='Enter') submitAnswer()">
+                    <button class="send-btn" onclick="submitAnswer()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Report Page -->
+            <div class="page" id="page-report">
+                <div class="header">
+                    <h1>📊 面试评估报告</h1>
+                    <div class="status"><span class="dot"></span> 报告已生成</div>
+                </div>
+                <div class="content" id="reportContent"></div>
+            </div>
+
+            <!-- Admin Dashboard Page -->
+            <div class="page" id="page-admin-dashboard">
+                <div class="header">
+                    <h1>📊 管理后台</h1>
+                    <div class="status"><span class="dot" style="background:#52c41a;"></span> 管理员模式</div>
+                </div>
+                <div class="content">
+                    <div class="dashboard-grid" style="grid-template-columns: repeat(4, 1fr);">
+                        <div class="card">
+                            <h3>👥 用户总数</h3>
+                            <div id="statTotalUsers" style="font-size:32px;font-weight:700;color:#1a73e8;">--</div>
+                        </div>
+                        <div class="card">
+                            <h3>📋 面试总数</h3>
+                            <div id="statTotalSessions" style="font-size:32px;font-weight:700;color:#333;">--</div>
+                        </div>
+                        <div class="card">
+                            <h3>📈 平均分</h3>
+                            <div id="statAvgScore" style="font-size:32px;font-weight:700;color:#52c41a;">--</div>
+                        </div>
+                        <div class="card">
+                            <h3>✅ 完成率</h3>
+                            <div id="statCompletionRate" style="font-size:32px;font-weight:700;color:#faad14;">--</div>
+                        </div>
+                    </div>
+                    <div class="card" style="margin-top:16px;">
+                        <h3>🏆 活跃用户 Top</h3>
+                        <table style="width:100%;border-collapse:collapse;margin-top:12px;">
+                            <thead><tr style="border-bottom:2px solid #e8e8e8;text-align:left;">
+                                <th style="padding:8px;">#</th><th>用户名</th><th>面试次数</th><th>平均分</th>
+                            </tr></thead>
+                            <tbody id="adminTopUsers"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Users Page -->
+            <div class="page" id="page-admin-users">
+                <div class="header">
+                    <h1>👥 用户管理</h1>
+                    <div class="status"><span class="dot" style="background:#52c41a;"></span> 管理员模式</div>
+                </div>
+                <div class="content">
+                    <div style="display:flex;gap:8px;margin-bottom:16px;">
+                        <input id="adminUserSearch" placeholder="搜索用户名/姓名/邮箱..."
+                               style="flex:1;padding:8px 12px;border:1px solid #e0e0e0;border-radius:6px;font-size:14px;"
+                               onkeydown="if(event.key==='Enter') searchUsers()">
+                        <button class="btn-primary" onclick="searchUsers()" style="padding:8px 16px;">搜索</button>
+                        <button class="btn-primary" onclick="openCreateUserModal()" style="padding:8px 16px;background:#52c41a;">+ 创建用户</button>
+                    </div>
+                    <table style="width:100%;border-collapse:collapse;">
+                        <thead><tr style="border-bottom:2px solid #e8e8e8;text-align:left;">
+                            <th style="padding:8px;">ID</th><th>用户名</th><th>姓名</th><th>邮箱</th><th>角色</th><th>状态</th><th>操作</th>
+                        </tr></thead>
+                        <tbody id="adminUsersTableBody"></tbody>
+                    </table>
+                    <div id="adminUsersPagination" style="margin-top:16px;text-align:center;display:flex;gap:12px;justify-content:center;align-items:center;"></div>
+                </div>
+            </div>
+
+            <!-- Admin Sessions Page -->
+            <div class="page" id="page-admin-sessions">
+                <div class="header">
+                    <h1>📋 面试管理</h1>
+                    <div class="status"><span class="dot" style="background:#52c41a;"></span> 管理员模式</div>
+                </div>
+                <div class="content">
+                    <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+                        <select id="adminSessionStatusFilter" style="padding:8px 12px;border:1px solid #e0e0e0;border-radius:6px;">
+                            <option value="">全部状态</option>
+                            <option value="PENDING">待开始</option>
+                            <option value="IN_PROGRESS">进行中</option>
+                            <option value="COMPLETED">已完成</option>
+                            <option value="CANCELLED">已取消</option>
+                        </select>
+                        <input id="adminSessionUserFilter" placeholder="用户ID" style="width:120px;padding:8px 12px;border:1px solid #e0e0e0;border-radius:6px;" type="number">
+                        <button class="btn-primary" onclick="filterSessions()" style="padding:8px 16px;">筛选</button>
+                    </div>
+                    <table style="width:100%;border-collapse:collapse;">
+                        <thead><tr style="border-bottom:2px solid #e8e8e8;text-align:left;">
+                            <th style="padding:8px;">ID</th><th>用户ID</th><th>状态</th><th>得分</th><th>日期</th><th>操作</th>
+                        </tr></thead>
+                        <tbody id="adminSessionsTableBody"></tbody>
+                    </table>
+                    <div id="adminSessionsPagination" style="margin-top:16px;text-align:center;display:flex;gap:12px;justify-content:center;align-items:center;"></div>
+                </div>
+            </div>
+
+            <!-- Admin Configs Page -->
+            <div class="page" id="page-admin-configs">
+                <div class="header">
+                    <h1>⚙️ 系统配置</h1>
+                    <div class="status"><span class="dot" style="background:#52c41a;"></span> 管理员模式</div>
+                </div>
+                <div class="content">
+                    <div class="card" style="max-width:700px;">
+                        <div id="configForm" style="display:flex;flex-direction:column;gap:16px;"></div>
+                        <div style="margin-top:20px;display:flex;gap:12px;align-items:center;">
+                            <button class="btn-primary" onclick="saveConfigs()">保存配置</button>
+                            <button class="btn-secondary" onclick="addConfigRow()">+ 新增配置项</button>
+                            <span id="configSaveMsg" style="font-size:13px;color:#52c41a;display:none;">保存成功</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Stats Page -->
+            <div class="page" id="page-admin-stats">
+                <div class="header">
+                    <h1>📈 数据统计</h1>
+                    <div class="status"><span class="dot" style="background:#52c41a;"></span> 管理员模式</div>
+                </div>
+                <div class="content">
+                    <!-- Overview cards -->
+                    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;">
+                        <div class="stat-card" id="statTotalSessions" style="background:#fff;border:1px solid #e8e8e8;border-radius:10px;padding:16px;text-align:center;">
+                            <div style="font-size:28px;font-weight:700;color:#1a73e8;">--</div>
+                            <div style="font-size:12px;color:#999;margin-top:4px;">总面试数</div>
+                        </div>
+                        <div class="stat-card" id="statCompletedSessions" style="background:#fff;border:1px solid #e8e8e8;border-radius:10px;padding:16px;text-align:center;">
+                            <div style="font-size:28px;font-weight:700;color:#52c41a;">--</div>
+                            <div style="font-size:12px;color:#999;margin-top:4px;">已完成</div>
+                        </div>
+                        <div class="stat-card" id="statAvgTotalScore" style="background:#fff;border:1px solid #e8e8e8;border-radius:10px;padding:16px;text-align:center;">
+                            <div style="font-size:28px;font-weight:700;color:#faad14;">--</div>
+                            <div style="font-size:12px;color:#999;margin-top:4px;">用户均分</div>
+                        </div>
+                        <div class="stat-card" id="statTotalQAs" style="background:#fff;border:1px solid #e8e8e8;border-radius:10px;padding:16px;text-align:center;">
+                            <div style="font-size:28px;font-weight:700;color:#722ed1;">--</div>
+                            <div style="font-size:12px;color:#999;margin-top:4px;">总答题数</div>
+                        </div>
+                    </div>
+                    <!-- Scoring Quality Metrics -->
+                    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;" id="qualityMetricsRow">
+                        <div class="stat-card" style="background:#fff;border:1px solid #e8e8e8;border-radius:10px;padding:16px;text-align:center;">
+                            <div id="metricStdDev" style="font-size:28px;font-weight:700;color:#faad14;">--</div>
+                            <div style="font-size:12px;color:#999;margin-top:4px;">评分标准差</div>
+                        </div>
+                        <div class="stat-card" style="background:#fff;border:1px solid #e8e8e8;border-radius:10px;padding:16px;text-align:center;">
+                            <div id="metricCalibrationRate" style="font-size:28px;font-weight:700;color:#52c41a;">--</div>
+                            <div style="font-size:12px;color:#999;margin-top:4px;">校准率(%)</div>
+                        </div>
+                        <div class="stat-card" style="background:#fff;border:1px solid #e8e8e8;border-radius:10px;padding:16px;text-align:center;">
+                            <div id="metricScoreDrift" style="font-size:28px;font-weight:700;color:#1a73e8;">--</div>
+                            <div style="font-size:12px;color:#999;margin-top:4px;">评分漂移</div>
+                        </div>
+                        <div class="stat-card" style="background:#fff;border:1px solid #e8e8e8;border-radius:10px;padding:16px;text-align:center;">
+                            <div id="metricCalibratedCount" style="font-size:28px;font-weight:700;color:#722ed1;">--</div>
+                            <div style="font-size:12px;color:#999;margin-top:4px;">已校准题数</div>
+                        </div>
+                    </div>
+                    <!-- Score distro + Category table -->
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                        <div class="card">
+                            <h3>总分分布</h3>
+                            <div id="scoreDistroChart" style="margin-top:12px;"></div>
+                        </div>
+                        <div class="card">
+                            <h3>类别对比</h3>
+                            <div id="categoryChart" style="margin-top:12px;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Audit Logs Page -->
+            <div class="page" id="page-admin-audit-logs">
+                <div class="header">
+                    <h1>📝 审计日志</h1>
+                    <div class="status"><span class="dot" style="background:#52c41a;"></span> 管理员模式</div>
+                </div>
+                <div class="content">
+                    <div style="display:flex;gap:8px;margin-bottom:16px;">
+                        <select id="auditLogTypeFilter" style="padding:8px 12px;border:1px solid #e0e0e0;border-radius:6px;">
+                            <option value="">全部类型</option>
+                            <option value="USER">用户</option>
+                            <option value="SESSION">会话</option>
+                            <option value="QA">答题</option>
+                            <option value="CONFIG">配置</option>
+                        </select>
+                        <button class="btn-primary" onclick="loadAdminAuditLogs(0)" style="padding:8px 16px;">筛选</button>
+                    </div>
+                    <table style="width:100%;border-collapse:collapse;">
+                        <thead><tr style="border-bottom:2px solid #e8e8e8;text-align:left;">
+                            <th style="padding:8px;">ID</th><th>时间</th><th>操作</th><th>目标类型</th><th>目标ID</th><th>操作者</th><th>描述</th>
+                        </tr></thead>
+                        <tbody id="adminAuditLogsTableBody"></tbody>
+                    </table>
+                    <div id="adminAuditLogsPagination" style="margin-top:16px;text-align:center;display:flex;gap:12px;justify-content:center;align-items:center;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;
+         background:rgba(0,0,0,0.4);z-index:1000;display:none;align-items:center;justify-content:center;">
+        <div style="background:#fff;border-radius:12px;padding:32px;width:380px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+                <h2 style="font-size:18px;margin:0;" id="loginTitle">登录</h2>
+                <button onclick="closeLogin()" style="border:none;background:none;font-size:20px;cursor:pointer;color:#999;padding:0;line-height:1;">✕</button>
+            </div>
+            <div style="margin-bottom:12px;">
+                <input id="loginUsername" placeholder="用户名"
+                       style="width:100%;padding:10px;border:1px solid #e0e0e0;border-radius:6px;font-size:14px;">
+            </div>
+            <div style="margin-bottom:12px;">
+                <input id="loginPassword" type="password" placeholder="密码"
+                       style="width:100%;padding:10px;border:1px solid #e0e0e0;border-radius:6px;font-size:14px;">
+            </div>
+            <div id="loginExtra" style="margin-bottom:12px;display:none;">
+                <input id="loginName" placeholder="姓名"
+                       style="width:100%;padding:10px;border:1px solid #e0e0e0;border-radius:6px;font-size:14px;margin-bottom:8px;">
+                <input id="loginEmail" placeholder="邮箱"
+                       style="width:100%;padding:10px;border:1px solid #e0e0e0;border-radius:6px;font-size:14px;">
+            </div>
+            <div style="display:flex;gap:8px;">
+                <button onclick="doLogin()" class="btn-primary" style="flex:1;justify-content:center;">登录</button>
+                <button onclick="toggleLoginMode()" class="btn-secondary" style="flex:1;justify-content:center;">注册</button>
+            </div>
+            <div id="loginError" style="color:#ff4d4f;font-size:13px;margin-top:8px;display:none;"></div>
+        </div>
+    </div>
+
+    <!-- User Detail Modal -->
+    <div id="userDetailModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;
+         background:rgba(0,0,0,0.4);z-index:1000;align-items:center;justify-content:center;">
+        <div style="background:#fff;border-radius:12px;padding:24px;width:480px;max-height:80vh;overflow-y:auto;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                <h2>用户详情</h2>
+                <button onclick="closeUserDetailModal()" style="border:none;background:none;font-size:20px;cursor:pointer;">✕</button>
+            </div>
+            <div id="userDetailContent"></div>
+        </div>
+    </div>
+
+    <!-- Edit User Modal -->
+    <div id="editUserModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;
+         background:rgba(0,0,0,0.4);z-index:1000;align-items:center;justify-content:center;">
+        <div style="background:#fff;border-radius:12px;padding:24px;width:480px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                <h2>编辑用户</h2>
+                <button onclick="closeEditUserModal()" style="border:none;background:none;font-size:20px;cursor:pointer;">✕</button>
+            </div>
+            <input type="hidden" id="editUserId">
+            <div style="margin-bottom:12px;"><label style="display:block;margin-bottom:4px;font-size:13px;color:#666;">姓名</label><input id="editUserName" style="width:100%;padding:8px;border:1px solid #e0e0e0;border-radius:6px;"></div>
+            <div style="margin-bottom:12px;"><label style="display:block;margin-bottom:4px;font-size:13px;color:#666;">邮箱</label><input id="editUserEmail" style="width:100%;padding:8px;border:1px solid #e0e0e0;border-radius:6px;"></div>
+            <div style="margin-bottom:12px;"><label style="display:block;margin-bottom:4px;font-size:13px;color:#666;">手机</label><input id="editUserPhone" style="width:100%;padding:8px;border:1px solid #e0e0e0;border-radius:6px;"></div>
+            <div style="margin-bottom:12px;"><label style="display:block;margin-bottom:4px;font-size:13px;color:#666;">角色</label><select id="editUserRole" style="width:100%;padding:8px;border:1px solid #e0e0e0;border-radius:6px;"><option value="USER">USER</option><option value="ADMIN">ADMIN</option></select></div>
+            <div style="margin-bottom:12px;"><label style="display:block;margin-bottom:4px;font-size:13px;color:#666;">状态</label><select id="editUserEnabled" style="width:100%;padding:8px;border:1px solid #e0e0e0;border-radius:6px;"><option value="true">启用</option><option value="false">禁用</option></select></div>
+            <div style="margin-bottom:12px;"><label style="display:block;margin-bottom:4px;font-size:13px;color:#666;">重置密码 (留空不修改)</label><input id="editUserPassword" type="password" placeholder="输入新密码..." style="width:100%;padding:8px;border:1px solid #e0e0e0;border-radius:6px;"></div>
+            <button class="btn-primary" onclick="saveUser()" style="width:100%;justify-content:center;">保存</button>
+        </div>
+    </div>
+
+    <!-- Create User Modal -->
+    <div id="createUserModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;
+         background:rgba(0,0,0,0.4);z-index:1000;align-items:center;justify-content:center;">
+        <div style="background:#fff;border-radius:12px;padding:24px;width:480px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                <h2>创建用户</h2>
+                <button onclick="closeCreateUserModal()" style="border:none;background:none;font-size:20px;cursor:pointer;">✕</button>
+            </div>
+            <div style="margin-bottom:12px;"><label style="display:block;margin-bottom:4px;font-size:13px;color:#666;">用户名 *</label><input id="createUsername" style="width:100%;padding:8px;border:1px solid #e0e0e0;border-radius:6px;"></div>
+            <div style="margin-bottom:12px;"><label style="display:block;margin-bottom:4px;font-size:13px;color:#666;">密码 *</label><input id="createPassword" type="password" style="width:100%;padding:8px;border:1px solid #e0e0e0;border-radius:6px;"></div>
+            <div style="margin-bottom:12px;"><label style="display:block;margin-bottom:4px;font-size:13px;color:#666;">姓名</label><input id="createName" style="width:100%;padding:8px;border:1px solid #e0e0e0;border-radius:6px;"></div>
+            <div style="margin-bottom:12px;"><label style="display:block;margin-bottom:4px;font-size:13px;color:#666;">邮箱</label><input id="createEmail" style="width:100%;padding:8px;border:1px solid #e0e0e0;border-radius:6px;"></div>
+            <div style="margin-bottom:12px;"><label style="display:block;margin-bottom:4px;font-size:13px;color:#666;">手机</label><input id="createPhone" style="width:100%;padding:8px;border:1px solid #e0e0e0;border-radius:6px;"></div>
+            <div style="margin-bottom:12px;"><label style="display:block;margin-bottom:4px;font-size:13px;color:#666;">角色</label><select id="createRole" style="width:100%;padding:8px;border:1px solid #e0e0e0;border-radius:6px;"><option value="USER">USER</option><option value="ADMIN">ADMIN</option></select></div>
+            <button class="btn-primary" onclick="createUser()" style="width:100%;justify-content:center;background:#52c41a;">创建</button>
+        </div>
+    </div>
+
+    <!-- Session Detail Modal -->
+    <div id="sessionDetailModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;
+         background:rgba(0,0,0,0.4);z-index:1000;align-items:center;justify-content:center;">
+        <div style="background:#fff;border-radius:12px;padding:24px;width:600px;max-height:80vh;overflow-y:auto;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                <h2>面试详情</h2>
+                <button onclick="closeSessionDetailModal()" style="border:none;background:none;font-size:20px;cursor:pointer;">✕</button>
+            </div>
+            <div id="sessionDetailContent"></div>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/router.js"></script>
+    <script src="js/admin.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/interview.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

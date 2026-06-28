@@ -1,0 +1,45 @@
+# Environment files
+.env
+*.env
+
+# Build artifacts
+backend/target/
+**/target/
+*.jar
+*.war
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+
+# AI service runtime data
+ai-service/data/sessions/
+
+# Uploads
+uploads/
+
+# Logs
+*.log
+ai-service/logs/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local override configs
+application-local.yml
+application-dev.yml
