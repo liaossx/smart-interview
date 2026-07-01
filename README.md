@@ -39,27 +39,19 @@
 
 ### 1. 登录页面
 
-<!-- 截图说明：打开 http://localhost:3000，未登录时的登录/注册界面 -->
-
-![登录页面](./screenshots/login.png)
+![登录页面](C:\Users\24285\AppData\Local\Temp\1782802766564.png)
 
 ### 2. 仪表盘首页
 
-<!-- 截图说明：登录后首页，显示会话总数、完成率、平均分等概览数据 -->
-
-![仪表盘](./screenshots/dashboard.png)
+![78281288500](C:\Users\24285\AppData\Local\Temp\1782812885009.png)
 
 ### 3. 新建面试（JD 输入 + 简历上传）
 
-<!-- 截图说明：点击"新建面试"，填入 JD 文本、上传简历后的界面 -->
-
-![新建面试](./screenshots/new-interview.png)
+![新建面试](C:\Users\24285\AppData\Local\Temp\1782802882371.png)
 
 ### 4. 面试问答界面
 
-<!-- 截图说明：面试进行中，显示 AI 提问和用户回答的对话界面 -->
-
-![面试问答](./screenshots/interview-chat.png)
+![面试问答](C:\Users\24285\AppData\Local\Temp\1782812602970.png)
 
 ### 5. 面试报告
 
@@ -69,15 +61,11 @@
 
 ### 6. 管理后台 — 统计分析
 
-<!-- 截图说明：管理后台的统计标签页，四个卡片：总览/分数分布/分类统计/评分质量 -->
-
-![管理后台统计](./screenshots/admin-stats.png)
+![管理后台统计](C:\Users\24285\AppData\Local\Temp\1782812911501.png)
 
 ### 7. 面试历史记录
 
-<!-- 截图说明：面试历史页面，列出所有面试记录 -->
-
-![历史记录](./screenshots/history.png)
+![历史记录](C:\Users\24285\AppData\Local\Temp\1782812935584.png)
 
 ### 8. GitHub Actions CI
 

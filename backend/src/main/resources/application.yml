@@ -40,7 +40,7 @@ internal:
   api-key: ${INTERNAL_API_KEY:dev-internal-key}
 
 ai:
-  service-url: ${AI_SERVICE_URL:http://127.0.0.1:8001/api/v1}
+  service-url: ${AI_SERVICE_URL:http://127.0.0.1:8002/api/v1}
 
 springdoc:
   api-docs:

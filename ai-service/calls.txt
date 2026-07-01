@@ -1,0 +1,48 @@
+=== app/agents/jd_analyzer.py:68 ===
+    return create_react_agent(
+        model=get_fast_llm(),
+        tools=[],
+        name="jd_analyzer",
+        prompt=SYSTEM_PROMPT,
+    )
+
+=== app/agents/resume_analyzer.py:63 ===
+    return create_react_agent(
+        model=get_fast_llm(),
+        tools=[],
+        name="resume_analyzer",
+        prompt=SYSTEM_PROMPT,
+    )
+
+=== app/agents/gap_analyzer.py:59 ===
+    return create_react_agent(
+        model=get_fast_llm(),
+        tools=[],
+        name="gap_analyzer",
+        prompt=SYSTEM_PROMPT,
+    )
+
+=== app/agents/question_generator.py:106 ===
+    return create_react_agent(
+        model=get_creative_llm(),
+        tools=[],
+        name="question_generator",
+        prompt=SYSTEM_PROMPT,
+    )
+
+=== app/agents/evaluator.py:96 ===
+    return create_react_agent(
+        model=get_fast_llm(),
+        tools=[],
+        name="evaluator",
+        prompt=SYSTEM_PROMPT,
+    )
+
+=== app/agents/interview.py:62 ===
+    return create_react_agent(
+        model=get_llm(temperature=0.6),   # 中等温度：兼顾稳定性和对话自然感
+        tools=[evaluate_answer],            # 绑定评分工具：ReAct 模式的核心能力
+        name="interview_agent",
+        prompt=system_prompt,
+    )
+

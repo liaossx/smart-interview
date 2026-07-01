@@ -217,31 +217,33 @@ const api = {
         }
     },
 
-    // Stream interview start — yields progress events then complete
+    // Stream interview start — backend returns JSON directly (no SSE)
     async aiStartInterviewStream(jdContent, resumeContent, onEvent) {
-        const res = await fetch(`${API_BASE}/interview/start/stream`, {
+        const res = await fetch(`${API_BASE}/interview/start`, {
             method: 'POST',
             headers: this.headers(),
             body: JSON.stringify({ jd_content: jdContent, resume_content: resumeContent })
         });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        await this._parseSSEStream(res, onEvent);
+        const data = await res.json();
+        onEvent({ event: 'complete', data: data });
     },
 
-    // Stream answer submission — yields progress then scored/complete
+    // Stream answer submission — backend returns JSON directly (no SSE)
     async aiSubmitAnswerStream(sessionId, answer, onEvent) {
-        const res = await fetch(`${API_BASE}/interview/answer/stream`, {
+        const res = await fetch(`${API_BASE}/interview/answer`, {
             method: 'POST',
             headers: this.headers(),
             body: JSON.stringify({ session_id: sessionId, answer: answer })
         });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        await this._parseSSEStream(res, onEvent);
+        const data = await res.json();
+        onEvent({ event: 'complete', data: data });
     },
 
     // Get current question for session recovery
     async getCurrentQuestion(sessionId) {
-        const res = await fetch(`${API_BASE}/interview/current/${sessionId}`, { headers: this.headers() });
+        const res = await fetch(`${API_BASE}/interview/state/${sessionId}`, { headers: this.headers() });
         return res.json();
     },
 
