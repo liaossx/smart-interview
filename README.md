@@ -39,37 +39,37 @@
 
 ### 1. 登录页面
 
-![登录页面](C:\Users\24285\AppData\Local\Temp\1782802766564.png)
+![登录页面](./screenshots/login.png)
 
 ### 2. 仪表盘首页
 
-![78281288500](C:\Users\24285\AppData\Local\Temp\1782812885009.png)
+![仪表盘首页](./screenshots/dashboard.png)
 
 ### 3. 新建面试（JD 输入 + 简历上传）
 
-![新建面试](C:\Users\24285\AppData\Local\Temp\1782802882371.png)
+![新建面试](./screenshots/new-interview.png)
 
 ### 4. 面试问答界面
 
-![面试问答](C:\Users\24285\AppData\Local\Temp\1782812602970.png)
+![面试问答](./screenshots/interview-qa.png)
 
 ### 5. 面试报告
 
-<!-- 截图说明：面试结束后，显示总分、逐题评分、反馈、改进建议的报告页 -->
+![面试报告](C:\Users\24285\AppData\Local\Temp\1782888466358.png)
 
-![面试报告](./screenshots/report.png)
+![78288848814](C:\Users\24285\AppData\Local\Temp\1782888488145.png)
 
 ### 6. 管理后台 — 统计分析
 
-![管理后台统计](C:\Users\24285\AppData\Local\Temp\1782812911501.png)
+![管理后台统计](./screenshots/admin-stats.png)
 
 ### 7. 面试历史记录
 
-![历史记录](C:\Users\24285\AppData\Local\Temp\1782812935584.png)
+![历史记录](./screenshots/history.png)
 
 ### 8. GitHub Actions CI
 
-<!-- 截图说明：GitHub 仓库页面，Actions 标签页，显示绿色 ✓ 的 CI 通过状态 -->
+![78288866370](C:\Users\24285\AppData\Local\Temp\1782888663708.png)
 
 ![CI 通过](./screenshots/ci-passed.png)
 
